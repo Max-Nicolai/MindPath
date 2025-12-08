@@ -14,10 +14,13 @@ load_dotenv()
 
 app = FastAPI(title="MindPath Backend")
 
-# Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=[
+        "http://localhost:5173",                  # For local development
+        "https://mindpath-ebc2144.netlify.app",   # Your specific Netlify URL
+        "https://mindpath-quiz.netlify.app"       # (Optional) If you have other aliases
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
