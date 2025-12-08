@@ -70,9 +70,12 @@ export function ResultsPage({
       
       setLoadingJobs(true);
       try {
-        // This URL points to your Python backend
-        // We now use the default limit (which is 1) or you can specify &limit=1
-        const response = await fetch(`http://127.0.0.1:8000/api/jobs?code=${result.code}&limit=1`);
+        // CHANGED: Use environment variable for the URL
+        // If VITE_BACKEND_URL is set (in Netlify), use it.
+        // If not (on your laptop), fallback to localhost:8000.
+        // @ts-ignore
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
+        const response = await fetch(`${backendUrl}/api/jobs?code=${result.code}&limit=1`);
         
         if (response.ok) {
             const data = await response.json();
