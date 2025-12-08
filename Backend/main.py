@@ -19,7 +19,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",                  # For local development
         "https://mindpath-ebc2144.netlify.app",   # Your specific Netlify URL
-        "https://mindpath-quiz.netlify.app"       # (Optional) If you have other aliases
+        "https://mindpath-quiz.netlify.app",     # (Optional) If you have other aliases
+        "https://mindpath-r0ru.onrender.com" # the right one
     ],
     allow_credentials=True,
     allow_methods=["*"],
