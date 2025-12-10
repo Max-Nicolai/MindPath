@@ -11,7 +11,8 @@ import {
   ChevronUp,
   Briefcase,
   MapPin,
-  ExternalLink
+  ExternalLink,
+  Users
 } from "lucide-react";
 import {
   RadarChart,
@@ -70,9 +71,6 @@ export function ResultsPage({
       
       setLoadingJobs(true);
       try {
-        // CHANGED: Use environment variable for the URL
-        // If VITE_BACKEND_URL is set (in Netlify), use it.
-        // If not (on your laptop), fallback to localhost:8000.
         // @ts-ignore
         const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
         const response = await fetch(`${backendUrl}/api/jobs?code=${result.code}&limit=1`);
@@ -94,6 +92,31 @@ export function ResultsPage({
   }, [result.code]);
   // ------------------------------
 
+  // Mock data for "People Like You"
+  const similarProfiles = useMemo(() => [
+    {
+        name: "Sarah Jenkins",
+        role: "Product Manager",
+        company: "TechFlow",
+        match: 94,
+        bio: "Started in Psychology, transitioned to Tech via UX Research.",
+    },
+    {
+        name: "David Chen",
+        role: "Data Analyst",
+        company: "DataCorp",
+        match: 89,
+        bio: "Combined Math major with Business minor.",
+    },
+    {
+        name: "Elena Rodriguez",
+        role: "Creative Director",
+        company: "Studio X",
+        match: 85,
+        bio: "Fine Arts background with self-taught management skills.",
+    }
+  ], []);
+
   // Transform RIASEC data for charts
   const skillsData = useMemo(() => {
     return result.breakdown.map(([key, score]) => ({
@@ -105,7 +128,7 @@ export function ResultsPage({
 
   const topThree = result.breakdown.slice(0, 3);
 
-  // Keep Majors as mock data for now (or move to backend later)
+  // Keep Majors as mock data for now
   const majors = useMemo(() => {
     return [
       {
@@ -240,6 +263,48 @@ export function ResultsPage({
             </div>
           </div>
         </div>
+
+        {/* -------------------- PEOPLE LIKE YOU SECTION -------------------- */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="size-6 text-blue-600" />
+            </div>
+            <div>
+                <h2 className="text-2xl text-gray-900">People Like You</h2>
+                <p className="text-sm text-gray-500">Discover paths taken by people with a similar Holland Code ({result.code})</p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {similarProfiles.map((profile, i) => (
+                <div key={i} className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:border-blue-300 transition-all group">
+                    <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="size-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-lg">
+                                {profile.name.charAt(0)}
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-900">{profile.name}</h3>
+                                <p className="text-sm text-gray-500">{profile.role}</p>
+                            </div>
+                        </div>
+                        <Linkedin className="size-5 text-blue-600" />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4 italic">"{profile.bio}"</p>
+                    <div className="flex items-center justify-between mt-auto">
+                        <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            {profile.match}% Similarity
+                        </span>
+                        <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
+                            View Profile
+                        </Button>
+                    </div>
+                </div>
+            ))}
+          </div>
+        </div>
+        {/* ----------------------------------------------------------------- */}
 
         {/* -------------------- REAL JOBS SECTION -------------------- */}
         <div className="mb-8">

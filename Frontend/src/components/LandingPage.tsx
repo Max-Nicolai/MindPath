@@ -1,15 +1,41 @@
+import { useRef, MouseEvent } from 'react';
 import { Button } from './ui/button';
-import { Brain, Sparkles, TrendingUp, Users } from 'lucide-react';
+import { Brain, Sparkles, TrendingUp, Users, Shield, X, Lock } from 'lucide-react';
 
 interface LandingPageProps {
   onStartQuiz: () => void;
 }
 
 export function LandingPage({ onStartQuiz }: LandingPageProps) {
+  // 1. Setup the Ref for the HTML Dialog element
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const handleOpenPrivacy = () => {
+    dialogRef.current?.showModal();
+  };
+
+  const handleClosePrivacy = () => {
+    dialogRef.current?.close();
+  };
+
+  const handleAcceptPrivacy = () => {
+    handleClosePrivacy();
+    onStartQuiz();
+  };
+
+  // 2. Handle clicking the backdrop (the dark area outside the modal)
+  const handleBackdropClick = (e: MouseEvent<HTMLDialogElement>) => {
+    // e.currentTarget refers to the <dialog> element itself.
+    // If e.target matches e.currentTarget, the user clicked the backdrop, not the content inside.
+    if (e.target === e.currentTarget) {
+      handleClosePrivacy();
+    }
+  };
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative bg-white">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -40,7 +66,7 @@ export function LandingPage({ onStartQuiz }: LandingPageProps) {
             </div>
             
             <Button 
-              onClick={onStartQuiz}
+              onClick={handleOpenPrivacy}
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6"
             >
@@ -133,6 +159,79 @@ export function LandingPage({ onStartQuiz }: LandingPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Privacy Policy Modal (Native Dialog) */}
+      <dialog
+        ref={dialogRef}
+        onClick={handleBackdropClick}
+        className="
+          bg-transparent p-0 
+          backdrop:bg-black/50 backdrop:backdrop-blur-sm
+          max-w-2xl w-full max-h-[90vh]
+          rounded-2xl shadow-2xl
+          open:animate-in open:fade-in-0 open:zoom-in-95
+        "
+      >
+        <div className="bg-white flex flex-col h-full rounded-2xl">
+          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-blue-900">
+              <Shield className="size-6" />
+              <h2 className="text-2xl font-semibold">Privacy Policy</h2>
+            </div>
+            <button 
+              onClick={handleClosePrivacy} 
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="size-6" />
+            </button>
+          </div>
+          
+          <div className="p-6 overflow-y-auto space-y-4 text-gray-600 leading-relaxed">
+            <p className="font-medium text-gray-900">Welcome to MindPath.</p>
+            <p>
+              We are committed to protecting your privacy and handling your data transparently and securely.
+              MindPath is based in the Netherlands and complies with the General Data Protection Regulation (GDPR).
+            </p>
+
+            <h3 className="text-lg font-semibold text-gray-900 mt-4">1. Collected Information</h3>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong>Personality & Interest Data:</strong> Used solely to generate personalized recommendations.</li>
+              <li><strong>Profile Information:</strong> Name/Email (only if you create an account).</li>
+              <li><strong>Device Metadata:</strong> For app functionality and performance.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold text-gray-900 mt-4">2. How We Use Your Information</h3>
+            <p>
+              We use your data to generate AI-powered recommendations, provide trajectory insights, and ensure app security. 
+              We do not sell your data.
+            </p>
+
+            <h3 className="text-lg font-semibold text-gray-900 mt-4">3. Data Storage & AI</h3>
+            <p>
+              All data is stored on secure cloud servers in the European Union. 
+              We use anonymized interactions with LLMs to process inputs; your identifiable information is never shared with LLM providers.
+            </p>
+
+            <h3 className="text-lg font-semibold text-gray-900 mt-4">4. Your Rights</h3>
+            <p>
+              You have the right to access, correct, delete ("right to be forgotten"), or export your data at any time.
+            </p>
+          </div>
+
+          <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-between items-center">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Lock className="size-4" />
+              <span>Your data is encrypted and secure</span>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="ghost" onClick={handleClosePrivacy}>Cancel</Button>
+              <Button onClick={handleAcceptPrivacy} className="bg-blue-600 hover:bg-blue-700">
+                Accept & Start Quiz
+              </Button>
+            </div>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }

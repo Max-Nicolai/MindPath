@@ -1,4 +1,4 @@
-import { Brain, Sparkles } from 'lucide-react';
+import { Brain, Sparkles, Users } from 'lucide-react';
 
 export function LoadingPage() {
   return (
@@ -21,9 +21,15 @@ export function LoadingPage() {
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-2 text-blue-600">
-          <Sparkles className="size-5 animate-pulse" />
-          <span className="animate-pulse">Finding your perfect path</span>
+        <div className="flex items-center justify-center gap-8 text-blue-600">
+            <div className="flex flex-col items-center gap-2">
+                <Sparkles className="size-5 animate-pulse" />
+                <span className="text-sm animate-pulse">Calculating path</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+                <Users className="size-5 animate-pulse" />
+                <span className="text-sm animate-pulse">Finding similar profiles</span>
+            </div>
         </div>
 
         {/* Loading dots animation */}
