@@ -14,18 +14,12 @@ import {
 
 interface QuizPageProps {
   onComplete: (data: { result: RIASECResult; answers: Record<string, any>; questions: any[] }) => void;
-  // New prop to enable test mode
   isTestMode?: boolean; 
 }
 
 const allQuestions = riasecQuestions;
 
 export function QuizPage({ onComplete, isTestMode = false }: QuizPageProps) {
-  // If in Test Mode, take only the first 6 questions (1 per type if organized that way, or just 6 random)
-  // Ideally, we want 1 of each R, I, A, S, E, C for a valid test.
-  // The current list is grouped, so taking first 6 gives only 'R'. 
-  // Let's pick 1 from each category for a better "Speed Run".
-  
   const questions = isTestMode 
     ? [
         allQuestions.find(q => q.id === 'riasec_R')!,
@@ -34,7 +28,7 @@ export function QuizPage({ onComplete, isTestMode = false }: QuizPageProps) {
         allQuestions.find(q => q.id === 'riasec_S')!,
         allQuestions.find(q => q.id === 'riasec_E')!,
         allQuestions.find(q => q.id === 'riasec_C')!,
-      ].filter(Boolean) // Remove undefined if any missing
+      ].filter(Boolean)
     : allQuestions;
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -80,6 +74,7 @@ export function QuizPage({ onComplete, isTestMode = false }: QuizPageProps) {
     const numericValue = parseInt(value, 10);
     const uniqueKey = `${question.id}_${currentQuestion}`;
     setAnswers({ ...answers, [uniqueKey]: numericValue });
+    setError(null); // Clear error immediately on selection
   };
 
   const handleSliderChange = (value: number[]) => {
@@ -122,17 +117,34 @@ export function QuizPage({ onComplete, isTestMode = false }: QuizPageProps) {
           {question.type === "radio" && (
             <RadioGroup value={currentAnswer?.toString() || ""} onValueChange={handleRadioChange}>
               <div className="space-y-4">
-                {question.options?.map((option) => (
-                  <div
-                    key={option.value}
-                    className="flex items-center space-x-3 border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-colors cursor-pointer"
-                  >
-                    <RadioGroupItem value={option.value.toString()} id={option.value.toString()} />
-                    <Label htmlFor={option.value.toString()} className="flex-1 cursor-pointer text-gray-700">
-                      {option.label}
-                    </Label>
-                  </div>
-                ))}
+                {question.options?.map((option) => {
+                  const isSelected = currentAnswer === option.value;
+                  return (
+                    <div
+                      key={option.value}
+                      onClick={() => handleRadioChange(option.value.toString())}
+                      className={`
+                        flex items-center space-x-3 border-2 rounded-xl p-4 transition-all cursor-pointer
+                        ${isSelected 
+                          ? 'border-blue-600 bg-blue-50' 
+                          : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        }
+                      `}
+                    >
+                      <RadioGroupItem 
+                        value={option.value.toString()} 
+                        id={option.value.toString()}
+                        className="pointer-events-none" // Prevents double-click issues on the radio dot itself
+                      />
+                      <Label 
+                        htmlFor={option.value.toString()} 
+                        className="flex-1 cursor-pointer text-gray-700 pointer-events-none" // Let parent div handle the click
+                      >
+                        {option.label}
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
             </RadioGroup>
           )}
@@ -156,6 +168,13 @@ export function QuizPage({ onComplete, isTestMode = false }: QuizPageProps) {
                   {currentAnswer !== undefined ? currentAnswer : 5} / {question.max}
                 </span>
               </div>
+            </div>
+          )}
+
+          {/* Error Message Display */}
+          {error && (
+            <div className="mt-4 text-red-500 text-sm font-medium animate-pulse">
+              {error}
             </div>
           )}
         </div>
